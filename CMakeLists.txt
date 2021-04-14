@@ -3,4 +3,4 @@ project(project8 C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(project8 main.c cpu.h cpu.c)
+add_executable(project8 src/main.c src/cpu.h src/cpu.c)
