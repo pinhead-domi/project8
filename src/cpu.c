@@ -206,6 +206,42 @@ void Cpu_RND(cpu* c, uint8_t x, uint8_t kk){
     c->v[x] = r & kk;
 }
 
+void Cpu_DRW(cpu* c, uint8_t x, uint8_t y, uint8_t n){
+
+    c->v[0xF] = 0;
+
+    uint8_t draw_byte, screen_x, screen_y, sprite_bit, screen_bit;
+    size_t location;
+
+    for (int i = 0; i < n; i++)
+    {
+        screen_y = y + i;
+        while(screen_y > 31)
+            screen_y -= 32;
+
+        draw_byte = c->memory[c->i+i];
+        for (int k = 0; i < 8; k++)
+        {
+            sprite_bit = (draw_byte << k) & 0x80;
+            screen_x = x + k;
+            while (screen_x > 63)
+                screen_x -= 64;
+            
+            location = screen_y*64 + screen_x;
+            screen_bit = c->vram[location];
+
+            if(screen_bit && sprite_bit)
+                c->v[0xF] = 1;
+
+            c->vram[location] = sprite_bit ^ screen_bit;
+            
+        }
+        
+    }
+    
+    
+}
+
 void Cpu_cycle(cpu* c){
     uint16_t opcode = (uint16_t) (c->memory[c->pc++] << 8) | c->memory[c->pc++];
 
