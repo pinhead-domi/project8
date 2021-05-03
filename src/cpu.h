@@ -21,6 +21,8 @@ typedef struct cpu_t{
 cpu Cpu_new();
 void Cpu_cycle(cpu* c);
 
+void Cpu_dumpVRAM(cpu* c);
+
 /*
 void Cpu_SYS(cpu* c, uint16_t nnn);
 void Cpu_CLS(cpu* c);

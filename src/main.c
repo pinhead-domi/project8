@@ -10,25 +10,31 @@ int main() {
     cpu c = Cpu_new();
 
     uint16_t opcodes[] = {
-            0x6002,
-            0x8006
+            0xA032,
+            0x603C,
+            0x611B,
+            0xD015,
+            0xD015
     };
 
     loadMemory(&c, opcodes, (sizeof opcodes)/(sizeof opcodes[0]));
 
     int cycles = 0;
-    while (c.pc < 4){
+    while (c.pc < 0x20A){
         Cpu_cycle(&c);
         cycles++;
     }
 
-    printf("Cpu completed program using %d cylces, yeah!\n", cycles);
+    //printf("Cpu completed program using %d cylces, yeah!\n", cycles);
+    
+
+    Cpu_dumpVRAM(&c);
 
     return 0;
 }
 
 void loadMemory(cpu* c, uint16_t opcodes[], uint16_t size){
-    for (int i=0, j = 0; i < size; ++i) {
+    for (int i=0, j = 0x200; i < size; ++i) {
         c->memory[j++] = opcodes[i] >> 8;
         c->memory[j++]   = opcodes[i];
     }

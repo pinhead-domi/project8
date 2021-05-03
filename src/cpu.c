@@ -10,12 +10,31 @@
 
 cpu Cpu_new(){
     cpu c;
-    c.pc=0;
+    c.pc=0x200;
     c.sp=0;
     c.i=0;
 
     c.dt=0;
     c.st=0;
+
+    uint8_t fontset[] = {
+        0xF0, 0x90, 0x90, 0x90, 0xF0,
+        0x20, 0x60, 0x20, 0x20, 0x70,
+        0xF0, 0x10, 0x10, 0x80, 0xF0,
+        0xF0, 0x10, 0xF0, 0x10, 0xF0,
+        0x90, 0x90, 0xF0, 0x10, 0x10,
+        0xF0, 0x80, 0xF0, 0x10, 0xF0,
+        0xF0, 0x80, 0xF0, 0x90, 0xF0,
+        0xF0, 0x10, 0x20, 0x40, 0x40,
+        0xF0, 0x90, 0xF0, 0x90, 0xF0,
+        0xF0, 0x90, 0xF0, 0x10, 0xF0,
+        0xF0, 0x90, 0xF0, 0x90, 0x90,
+        0xE0, 0x90, 0xE0, 0x90, 0xE0,
+        0xF0, 0x80, 0x80, 0x80, 0xF0,
+        0xE0, 0x90, 0x90, 0x90, 0xE0,
+        0xF0, 0x80, 0xF0, 0x80, 0xF0,
+        0xF0, 0x80, 0xF0, 0x80, 0x80
+    };
 
     for (int i = 0; i < sizeof c.v; i++) {
         c.v[i]=0;
@@ -25,6 +44,12 @@ cpu Cpu_new(){
     }
     for (int i = 0; i < sizeof c.stack; i++) {
         c.stack[i]=0;
+    }
+
+    int fontset_length = (sizeof(fontset)/sizeof(fontset[0]));
+    for (int i = 0; i < fontset_length; i++)
+    {
+        c.memory[i] = fontset[i];
     }
 
     srand(time(NULL));
@@ -206,6 +231,9 @@ void Cpu_RND(cpu* c, uint8_t x, uint8_t kk){
     c->v[x] = r & kk;
 }
 
+/*
+ * 0xDxyn
+ */
 void Cpu_DRW(cpu* c, uint8_t x, uint8_t y, uint8_t n){
 
     c->v[0xF] = 0;
@@ -215,15 +243,15 @@ void Cpu_DRW(cpu* c, uint8_t x, uint8_t y, uint8_t n){
 
     for (int i = 0; i < n; i++)
     {
-        screen_y = y + i;
+        screen_y = c->v[y] + i;
         while(screen_y > 31)
             screen_y -= 32;
 
         draw_byte = c->memory[c->i+i];
-        for (int k = 0; i < 8; k++)
+        for (int k = 0; k < 8; k++)
         {
-            sprite_bit = (draw_byte << k) & 0x80;
-            screen_x = x + k;
+            sprite_bit = ((draw_byte << k) & 0x80) >> 7;
+            screen_x = c->v[x] + k;
             while (screen_x > 63)
                 screen_x -= 64;
             
@@ -239,6 +267,18 @@ void Cpu_DRW(cpu* c, uint8_t x, uint8_t y, uint8_t n){
         
     }
     
+}
+
+void Cpu_dumpVRAM(cpu* c){
+    char line [64];
+    for (int i = 0; i < 32; i++)
+    {
+        for (int k = 0; k < 64; k++)
+        {
+            printf("%d", c->vram[(i*64)+k]);
+        }
+        printf("\n");
+    }
     
 }
 
@@ -325,6 +365,10 @@ void Cpu_cycle(cpu* c){
             break;
         case 0xC:
             Cpu_RND(c, x, kk);
+            break;
+        case 0xD:
+            Cpu_DRW(c, x, y, n);
+            break;
     }
 
 }
