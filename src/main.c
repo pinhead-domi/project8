@@ -22,7 +22,7 @@ int main() {
         cycles++;
     }
 
-    printf("Cpu completed program using %d cylces!", cycles);
+    printf("Cpu completed program using %d cylces, yeah!\n", cycles);
 
     return 0;
 }
