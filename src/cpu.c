@@ -45,6 +45,9 @@ cpu Cpu_new(){
     for (int i = 0; i < sizeof c.stack; i++) {
         c.stack[i]=0;
     }
+    for (int i = 0; i < sizeof c.vram; i++) {
+        c.vram[i]=0;
+    }
 
     int fontset_length = (sizeof(fontset)/sizeof(fontset[0]));
     for (int i = 0; i < fontset_length; i++)
@@ -370,5 +373,7 @@ void Cpu_cycle(cpu* c){
             Cpu_DRW(c, x, y, n);
             break;
     }
+
+    if(c->dt)
 
 }
