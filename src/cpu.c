@@ -6,6 +6,7 @@
 
 #include "cpu.h"
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 cpu Cpu_new(){
@@ -36,6 +37,11 @@ cpu Cpu_new(){
         0xF0, 0x80, 0xF0, 0x80, 0x80
     };
 
+    /*
+     *  Initialising big areas of memory, in this case, sizeof
+     *  returns the correct lenghts since all of the arrays have
+     *  an element-size of exactly one byte.
+     */
     for (int i = 0; i < sizeof c.v; i++) {
         c.v[i]=0;
     }
@@ -48,9 +54,11 @@ cpu Cpu_new(){
     for (int i = 0; i < sizeof c.vram; i++) {
         c.vram[i]=0;
     }
-
-    int fontset_length = (sizeof(fontset)/sizeof(fontset[0]));
-    for (int i = 0; i < fontset_length; i++)
+    for (int i = 0; i < sizeof c.keypad; i++)
+    {
+        c.keypad[i] = 0;
+    }
+    for (int i = 0; i < sizeof fontset; i++)
     {
         c.memory[i] = fontset[i];
     }
@@ -272,6 +280,28 @@ void Cpu_DRW(cpu* c, uint8_t x, uint8_t y, uint8_t n){
     
 }
 
+void Cpu_SKPK(cpu* c, uint8_t x){
+    uint8_t target_key = c->v[x];
+    if(c->keypad[target_key]){
+        c->pc += 2;
+    }
+}
+
+void Cpu_SKNK(cpu* c, uint8_t x){
+    uint8_t target_key = c->v[x];
+    if(!c->keypad[target_key]){
+        c->pc += 2;
+    }
+}
+
+void Cpu_LDDT(cpu* c, uint8_t x){
+    c->v[x] = c->dt;
+}
+
+void Cpu_LDK(cpu* c, uint8_t x){
+    
+}
+
 void Cpu_dumpVRAM(cpu* c){
     char line [64];
     for (int i = 0; i < 32; i++)
@@ -372,8 +402,23 @@ void Cpu_cycle(cpu* c){
         case 0xD:
             Cpu_DRW(c, x, y, n);
             break;
-    }
+        case 0xE:
+            switch(kk){
+                case 0x9E:
+                    Cpu_SKPK(c, x);
+                    break;
+                case 0xA1:
+                    Cpu_SKNK(c, x);
+                    break;
+            }
+            break;
+        case 0xF:
+            switch(kk){
+                case 0x07:
+                    Cpu_LDDT(c, x);
+                    break;
 
-    if(c->dt)
+            }
+    }
 
 }

@@ -16,6 +16,7 @@ typedef struct cpu_t{
     uint16_t stack [16];
     uint8_t memory [4096];
     uint8_t vram [64*32];
+    uint8_t keypad[16];
 }cpu;
 
 cpu Cpu_new();

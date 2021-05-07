@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "cpu.h"
 #include <inttypes.h>
+#include "SDL.h"
 
 void testSkips();
 void loadMemory(cpu* c, uint16_t opcodes[], uint16_t size);
@@ -14,20 +15,19 @@ int main() {
             0x603C,
             0x611B,
             0xD015,
-            0xD015
+            0xA000
     };
-
+    
     loadMemory(&c, opcodes, (sizeof opcodes)/(sizeof opcodes[0]));
+
+    SDL_Init(SDL_INIT_VIDEO);
 
     int cycles = 0;
     while (c.pc < 0x20A){
         Cpu_cycle(&c);
         cycles++;
     }
-
-    //printf("Cpu completed program using %d cylces, yeah!\n", cycles);
     
-
     Cpu_dumpVRAM(&c);
 
     return 0;
